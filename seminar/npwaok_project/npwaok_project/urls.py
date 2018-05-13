@@ -17,6 +17,6 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^$', include('oglasi.urls')),
+    url(r'^oglasnik/', include('oglasnik.urls')),
     url(r'^admin/', admin.site.urls),
 ]

@@ -13,5 +13,5 @@ urlpatterns = [
         success_url='../chpassdone'), name='chpass'),
     url(r'^chpassdone/$', auth_views.PasswordChangeDoneView.as_view(
         template_name="oglasnik/chpassdone.html"), name='chpassdone'),
-
+    url(r'^([0-9]+)/$', views.adDetails, name='adDetails' ),
 ]

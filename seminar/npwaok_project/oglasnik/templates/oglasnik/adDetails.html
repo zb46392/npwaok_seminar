@@ -1,0 +1,25 @@
+{% extends './base.html' %}
+
+{% block title %}Oglasnik{% endblock %}
+{% block content %}
+<a href="{% url 'logout' %}">Logout</a><br>
+<a href="{% url 'chpass' %}">Promini lozinku</a><br>
+<a href="{% url 'index' %}">Povratak na početnu</a>
+
+<table border="2">
+  <thead>
+    <th colspan="2">{{ ad.title }}</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan="2">{{ ad.description }}</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td> {{ userData }} </td>
+      <th>{{ ad.price }} HRK</th>
+    </tr>
+  </tfoot>
+</table>
+{% endblock %}

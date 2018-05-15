@@ -22,7 +22,7 @@
       <td>{{ad.createDate}}</td>
       <td>{{ad.title}}</td>
       <td>{{ad.price}}</td>
-      <td>to_do: show details...</td>
+      <td><a href="{% url 'adDetails' ad.id %}">vidi više</td>
     </tr>
     {% endfor %}
   </tbody>

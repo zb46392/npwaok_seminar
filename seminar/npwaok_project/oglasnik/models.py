@@ -18,9 +18,9 @@ class Category(models.Model):
         return Category.objects.get(name__contains = name)
 
 class Ad(models.Model):
-    idcategory = models.ForeignKey(Category, on_delete = models.CASCADE,
+    category = models.ForeignKey(Category, on_delete = models.CASCADE,
         null = False)
-    idUser = models.ForeignKey(User, on_delete = models.CASCADE,
+    user = models.ForeignKey(User, on_delete = models.CASCADE,
         null = False)
 
     title = models.CharField(max_length = 40, null = False)
@@ -49,7 +49,7 @@ class Ad(models.Model):
         queryList = []
 
         if category != None:
-            queryList.append(models.Q(idcategory=category))
+            queryList.append(models.Q(category=category))
         if title != '':
             queryList.append(models.Q(title__icontains=title))
         if minPrice != None:

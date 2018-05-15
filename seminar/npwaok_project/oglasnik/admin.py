@@ -11,4 +11,4 @@ class AuthorAdmin(admin.ModelAdmin):
 
 @admin.register(Ad)
 class AuthorAd(admin.ModelAdmin):
-    list_display = ('idcategory', 'idUser', 'title', 'price')
+    list_display = ('category', 'user', 'title', 'price')

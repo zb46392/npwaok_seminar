@@ -21,7 +21,6 @@ def index(request):
 
                 ads = Ad.findByFilter(category, title, priceMin, priceMax)
 
-
                 return render(request, 'oglasnik/index.html', {'form' : form, 'ads':ads,'visibility':'visible'})
         form = searchAdsForm()
         return render(request, 'oglasnik/index.html', {'form' : form, 'visibility':'hidden'})
@@ -47,3 +46,13 @@ def registerUser(request):
     else:
         form = userRegistrationForm()
     return render(request, 'oglasnik/userRegistration.html', {'form': form})
+
+
+def adDetails(request, id):
+    if request.method == 'POST':
+        pass
+    else:
+        ad = Ad.objects.get(pk=id)
+
+        context = {'ad':ad, 'userData': ad.user.email }
+        return render(request, 'oglasnik/adDetails.html', context)

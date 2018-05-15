@@ -1,0 +1,30 @@
+{% extends './base.html' %}
+
+{% block title %}Oglasnik{% endblock %}
+{% block content %}
+<a href="{% url 'logout'%}">Logout</a><br>
+<a href="{% url 'chpass'%}">Promini lozinku</a>
+<form method="post">
+  {% csrf_token %}
+  {{ form }}
+  <br><button type="submit">Traži</button><br>
+</form>
+<table border="2" style="visibility: {{ visibility }};">
+  <thead>
+    <th>Datum</th>
+    <th>Naslov</th>
+    <th>Cijena</th>
+    <th>Prikaži više</th>
+  </thead>
+  <tbody>
+    {% for ad in ads %}
+    <tr>
+      <td>{{ad.createDate}}</td>
+      <td>{{ad.title}}</td>
+      <td>{{ad.price}}</td>
+      <td>to_do: show details...</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

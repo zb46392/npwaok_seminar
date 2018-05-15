@@ -2,6 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from models import Category
 
 
 class userRegistrationForm(UserCreationForm):
@@ -15,3 +16,13 @@ class userRegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'choice',)
+
+class searchAdsForm(forms.Form):
+    categories = forms.ModelChoiceField(queryset=Category.getAll(),
+        empty_label="(Sve)", required=False)
+    title = forms.CharField(max_length = 40, label = 'Traži pojam',
+        required=False)
+    priceMin = forms.DecimalField(max_digits = 8, decimal_places = 2,
+        label='Minimalna cjena', min_value=0, required=False)
+    priceMax = forms.DecimalField(max_digits = 8, decimal_places = 2,
+        label='Maximalna cjena',  min_value=0, required=False)

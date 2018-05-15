@@ -17,21 +17,8 @@ class Category(models.Model):
     def getByName(name):
         return Category.objects.get(name__contains = name)
 
-class Subcategory(models.Model):
-    idCategory = models.ForeignKey(Category, on_delete = models.CASCADE,
-        null = False)
-    name = models.CharField(max_length = 40, null = False, unique = True)
-
-    @staticmethod
-    def getAll():
-        return Subcategory.objects.all()
-
-    @staticmethod
-    def getByName(name):
-        return Subcategory.objects.get(name__contains = name)
-
 class Ad(models.Model):
-    IdSubcategory = models.ForeignKey(Subcategory, on_delete = models.CASCADE,
+    idcategory = models.ForeignKey(Category, on_delete = models.CASCADE,
         null = False)
     idUser = models.ForeignKey(User, on_delete = models.CASCADE,
         null = False)
@@ -52,3 +39,30 @@ class Ad(models.Model):
     @staticmethod
     def getByPricerange(minPrice, maxPrice):
         return Ad.objects.filter(price__gte = minPrice, price__lte = maxPrice)
+
+    @staticmethod
+    def getByCategory(categoryName):
+        return ad.objects.filter(Idcategory = Category.getByName(categoryName))
+
+    @staticmethod
+    def findByFilter(category, title, minPrice, maxPrice):
+        queryList = []
+
+        if category != None:
+            queryList.append(models.Q(idcategory=category))
+        if title != '':
+            queryList.append(models.Q(title__icontains=title))
+        if minPrice != None:
+            queryList.append(models.Q(price__gte=minPrice))
+        if maxPrice != None:
+            queryList.append(models.Q(price__lte=maxPrice))
+
+        if (len(queryList) == 0):
+            return Ad.objects.all()
+
+        query = queryList.pop()
+
+        for q in queryList:
+            query &= q
+
+        return Ad.objects.filter(query)

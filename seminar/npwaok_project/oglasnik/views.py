@@ -3,15 +3,29 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from forms import userRegistrationForm
+from forms import userRegistrationForm, searchAdsForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import login, authenticate
+from .models import Ad
 from django.http import HttpResponse
 
 def index(request):
     if request.user.is_authenticated:
-        #create context
-        return HttpResponse("User is logged in...")
+        if request.method == 'POST':
+            form = searchAdsForm(request.POST)
+            if form.is_valid():
+                category = form.cleaned_data['categories']
+                title = form.cleaned_data['title']
+                priceMin = form.cleaned_data['priceMin']
+                priceMax = form.cleaned_data['priceMax']
+
+                ads = Ad.findByFilter(category, title, priceMin, priceMax)
+
+
+                return render(request, 'oglasnik/index.html', {'form' : form, 'ads':ads,'visibility':'visible'})
+        form = searchAdsForm()
+        return render(request, 'oglasnik/index.html', {'form' : form, 'visibility':'hidden'})
+
     else:
         return HttpResponseRedirect(reverse('login'))
 

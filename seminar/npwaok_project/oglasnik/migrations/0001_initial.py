@@ -38,13 +38,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=40, unique=True)),
-                ('idCategory', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='oglasi.Category')),
+                ('idCategory', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='oglasnik.Category')),
             ],
         ),
         migrations.AddField(
             model_name='ad',
             name='IdSubcategory',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='oglasi.Subcategory'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='oglasnik.Subcategory'),
         ),
         migrations.AddField(
             model_name='ad',

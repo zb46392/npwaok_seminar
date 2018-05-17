@@ -5,8 +5,14 @@
 <a href="{% url 'logout' %}">Logout</a><br>
 <a href="{% url 'chpass' %}">Promini lozinku</a><br>
 <a href="{% url 'index' %}">Povratak na početnu</a>
-
-<table border="2">
+<form method='post' style = "display: {{ formDisplay }}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <p> Kontakt: {{ userData }} </p><br>
+  <button type="submit"> Promini </button>
+</form>
+{{ msg }}
+<table border="2" style="display: {{ tableDisplay }}">
   <thead>
     <th colspan="2">{{ ad.title }}</th>
   </thead>
@@ -17,7 +23,7 @@
   </tbody>
   <tfoot>
     <tr>
-      <td> {{ userData }} </td>
+      <td> <b>Kontakt: </b>{{ userData }} </td>
       <th>{{ ad.price }} HRK</th>
     </tr>
   </tfoot>

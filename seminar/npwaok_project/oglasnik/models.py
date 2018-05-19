@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 # unique raises django.db.IntegrityError
+class CustomUser(User):
+    class Meta:
+        proxy = True
+
+    def isAdvertiser(self):
+            return self.groups.filter(name="Advertisers").exists()
+
 class Category(models.Model):
     name = models.CharField(max_length = 40, null = False, unique = True)
 
@@ -66,3 +73,7 @@ class Ad(models.Model):
             query &= q
 
         return Ad.objects.filter(query)
+
+    @staticmethod
+    def findByAdvertiser(advertiser):
+        return Ad.objects.filter(user=advertiser)

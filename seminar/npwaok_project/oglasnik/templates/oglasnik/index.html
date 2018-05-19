@@ -7,9 +7,15 @@
 <form method="post">
   {% csrf_token %}
   {{ form }}
-  <br><button type="submit">Traži</button><br>
+  <br><button type="submit" name="searchBtn">Traži</button>
+  {% if isAdvertiser %}
+  <button type="submit" name="ownAdsBtn">Vlastiti oglasi</button>
+  <button type="submit" name = "addAdBtn">Novi oglas</button><br>
+  {% endif %}
+  
 </form>
-<table border="2" style="visibility: {{ visibility }};">
+{% if showTable %}
+<table border="2">
   <thead>
     <th>Datum</th>
     <th>Naslov</th>
@@ -27,4 +33,6 @@
     {% endfor %}
   </tbody>
 </table>
+{% endif %}
+
 {% endblock %}

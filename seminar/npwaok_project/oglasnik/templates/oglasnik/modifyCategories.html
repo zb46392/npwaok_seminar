@@ -1,0 +1,17 @@
+{% extends './base.html' %}
+
+{% block title %}Izmjena kategorija{% endblock %}
+{% block userActions %}{% include './basicActions.html' %}{% endblock %}
+
+{% block content %}
+  <b>{{ msg }}</b>
+  {% if isAdmin %}
+    <form>
+      {{ form.as_p }}
+
+      <button type="submit" name="createBtn"> Dodaj </button>
+      <button type="submit" name="updateBtn"> Izmjeni </button>
+      <button type="submit" name="deleteBtn"> Izbriši </button>
+    </form>
+  {% endif %}
+{% endblock %}

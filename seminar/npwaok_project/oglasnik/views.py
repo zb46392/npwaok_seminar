@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render, redirect
 #from django.http import HttpResponseRedirect
 from django.urls import reverse
-from forms import UserRegistrationForm, SearchAdsForm, AdDetailsForm
+from forms import UserRegistrationForm, SearchAdsForm, AdDetailsForm, ModifyCategoriesForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import login, authenticate
 from .models import Ad, Category, CustomUser
@@ -138,3 +138,20 @@ def createNewAd(request):
     context = {'form': form, 'userData': request.user.email,'isOwnAd': True, 'isNewAd': True,
         'isDeletedAd': False}
     return render(request, 'oglasnik/adDetails.html', context)
+
+
+@login_required
+def modifyCategories(request):
+    isAdmin = False
+    if request.user.is_superuser:
+        isAdmin = True
+        if request.method == 'POST':
+            # to_do: create, update, delete Category...
+            pass
+        else:
+            form = ModifyCategoriesForm()
+            context = {'form': form, 'isAdmin': isAdmin}
+            return render(request, 'oglasnik/modifyCategories.html', context)
+    else:
+        context = {'isAdmin': isAdmin, 'msg': 'Nemate pravo pristupiti ovoj stranici...'}
+        return render(request, 'oglasnik/modifyCategories.html', context)

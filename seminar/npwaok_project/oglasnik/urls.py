@@ -15,4 +15,5 @@ urlpatterns = [
         template_name="oglasnik/chpassdone.html"), name='chpassdone'),
     url(r'^([0-9]+)/$', views.adDetails, name='adDetails' ),
     url(r'^newAd/$', views.createNewAd, name='newAd' ),
+    url(r'^modifyCategories/$', views.modifyCategories, name='modifyCategories' ),
 ]

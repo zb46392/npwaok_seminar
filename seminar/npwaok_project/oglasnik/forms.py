@@ -19,7 +19,7 @@ class UserRegistrationForm(UserCreationForm):
 
 class SearchAdsForm(forms.Form):
     categories = forms.ModelChoiceField(queryset=Category.getAll(),
-        empty_label="(Sve)", required=False)
+        empty_label="(Sve)", label = "Kategorija", required=False)
     title = forms.CharField(max_length = 40, label = 'Traži pojam',
         required=False)
     priceMin = forms.DecimalField(max_digits = 8, decimal_places = 2,
@@ -34,3 +34,8 @@ class AdDetailsForm(forms.Form):
     price = forms.DecimalField(max_digits = 8, label= 'Cijena',decimal_places = 2,
         min_value=0, required=True)
     description = forms.CharField(widget=forms.Textarea, label = 'Opis', required=True)
+
+class ModifyCategoriesForm(forms.Form):
+    categories = forms.ModelChoiceField(queryset=Category.getAll(),
+        label = "Kategorija", required=False)
+    categoryName = forms.CharField(max_length = 40,label = 'Naziv kategorije', required=False)

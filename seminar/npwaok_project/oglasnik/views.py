@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth import login, authenticate
 from .models import Ad, Category, CustomUser
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+#from django.http import HttpResponse
 
 def index(request):
     if request.user.is_authenticated:
@@ -59,10 +59,12 @@ def registerUser(request):
                 advertisersGrp = Group.objects.get(name='Advertisers')
                 advertisersGrp.user_set.add(user)
                 advertisersGrp.save()
+                user.is_staff = True
+                user.save()
 
 
             login(request,user)
-            return HttpResponseRedirect(reverse('index'))
+            return redirect(reverse('index'))
     else:
         form = UserRegistrationForm()
     return render(request, 'oglasnik/userRegistration.html', {'form': form})

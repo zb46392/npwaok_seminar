@@ -4,9 +4,9 @@
 {% block userActions %}{% include './basicActions.html' %}{% endblock %}
 
 {% block content %}
-  <b>{{ msg }}</b>
   {% if isAdmin %}
-    <form>
+    <form method='post'>
+      {% csrf_token %}
       {{ form.as_p }}
 
       <button type="submit" name="createBtn"> Dodaj </button>
@@ -14,4 +14,5 @@
       <button type="submit" name="deleteBtn"> Izbriši </button>
     </form>
   {% endif %}
+  <b>{{ msg }}</b>
 {% endblock %}

@@ -14,6 +14,7 @@ def index(request):
     if request.user.is_authenticated:
         cUser = CustomUser(request.user.id)
         isAdvertiser = cUser.isAdvertiser()
+        isAdmin = request.user.is_superuser
         if request.method == 'POST':
             form = SearchAdsForm(request.POST)
             if form.is_valid():
@@ -26,12 +27,14 @@ def index(request):
                     ads = Ad.findByFilter(category, title, priceMin, priceMax)
 
                     return render(request, 'oglasnik/index.html',
-                        {'form' : form, 'ads':ads,'showTable':True, 'isAdvertiser': isAdvertiser})
+                        {'form' : form, 'ads':ads,'showTable':True,
+                            'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin})
 
                 if(request.POST.get("ownAdsBtn") != None):
                     ads = Ad.findByAdvertiser(request.user)
                     return render(request, 'oglasnik/index.html',
-                        {'form' : form, 'ads':ads,'showTable':True, 'isAdvertiser': isAdvertiser})
+                        {'form' : form, 'ads':ads,'showTable':True,
+                            'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin})
 
                 if(request.POST.get("addAdBtn") != None):
                     return redirect(reverse('newAd'))
@@ -40,7 +43,7 @@ def index(request):
 
 
         return render(request, 'oglasnik/index.html',
-            {'form' : form, 'showTable': False, 'isAdvertiser': isAdvertiser})
+            {'form' : form, 'showTable': False, 'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin})
 
     else:
         return redirect(reverse('login'))
@@ -146,8 +149,63 @@ def modifyCategories(request):
     if request.user.is_superuser:
         isAdmin = True
         if request.method == 'POST':
-            # to_do: create, update, delete Category...
-            pass
+            form = ModifyCategoriesForm(request.POST)
+            if form.is_valid():
+                categoryName = form.cleaned_data['categoryName']
+                category = form.cleaned_data['categories']
+
+                if(request.POST.get('createBtn') != None):
+                    if categoryName == '':
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Naziv kategorije nemože biti prazna...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                    elif Category.exists(categoryName):
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Kategorija već postoji...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                    else:
+                        newCategory = Category(name=categoryName)
+                        newCategory.save()
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Nova kategorija pohranjena...'}
+
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                if(request.POST.get('updateBtn') != None):
+                    if category == None:
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Nije odabrana kategorija za izmjenu...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                    elif categoryName == '':
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Naziv kategorije nemože biti prazna...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                    elif Category.exists(categoryName):
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Kategorija već postoji...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                    else:
+                        modifiedCategory = Category.getByName(category)
+                        modifiedCategory.name = categoryName
+                        modifiedCategory.save()
+
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Kategorija je izmjenjena...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+
+                if(request.POST.get('deleteBtn') != None):
+                    if category == None:
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Nije odabrana kategorija za brisanje...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                    else:
+                        deletedCategory = Category.getByName(category)
+                        deletedCategory.delete()
+
+                        context = {'form': form, 'isAdmin': isAdmin,
+                            'msg': 'Kategorija je izbrisana...'}
+                        return render(request, 'oglasnik/modifyCategories.html', context)
+                context = {'form': form, 'isAdmin': isAdmin, 'msg': 'TEST...'}
+                return render(request, 'oglasnik/modifyCategories.html', context)
         else:
             form = ModifyCategoriesForm()
             context = {'form': form, 'isAdmin': isAdmin}

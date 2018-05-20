@@ -24,6 +24,10 @@ class Category(models.Model):
     def getByName(name):
         return Category.objects.get(name__contains = name)
 
+    @staticmethod
+    def exists(categoryName):
+        return Category.objects.filter(name = categoryName).exists()
+
 class Ad(models.Model):
     category = models.ForeignKey(Category, on_delete = models.CASCADE,
         null = False)

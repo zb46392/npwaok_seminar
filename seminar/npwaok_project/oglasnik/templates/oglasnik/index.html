@@ -1,9 +1,18 @@
 {% extends './base.html' %}
 
 {% block title %}Oglasnik{% endblock %}
-{% block content %}
+{% block userActions %}
 <a href="{% url 'logout'%}">Logout</a><br>
-<a href="{% url 'chpass'%}">Promini lozinku</a>
+<a href="{% url 'chpass'%}">Promini lozinku</a><br>
+{% if isAdmin %}
+  <a href="{% url 'modifyCategories' %}">Upravljanje kategorijama</a>
+{% endif %}
+
+{% endblock %}
+
+
+{% block content %}
+
 <form method="post">
   {% csrf_token %}
   {{ form }}
@@ -12,7 +21,7 @@
   <button type="submit" name="ownAdsBtn">Vlastiti oglasi</button>
   <button type="submit" name = "addAdBtn">Novi oglas</button><br>
   {% endif %}
-  
+
 </form>
 {% if showTable %}
 <table border="2">
@@ -34,5 +43,5 @@
   </tbody>
 </table>
 {% endif %}
-
+{{ msg }}
 {% endblock %}

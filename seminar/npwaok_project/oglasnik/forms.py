@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from models import Category
+from models import Category, AdsImages
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -39,3 +39,10 @@ class ModifyCategoriesForm(forms.Form):
     categories = forms.ModelChoiceField(queryset=Category.getAll(),
         label = "Kategorija", required=False)
     categoryName = forms.CharField(max_length = 40,label = 'Naziv kategorije', required=False)
+
+
+class ImageForm(forms.ModelForm):
+    class Meta:
+        model = AdsImages
+        fields = ('image', )
+        labels = {'image': 'Slika'}

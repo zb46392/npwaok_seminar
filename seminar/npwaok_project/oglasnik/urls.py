@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.views.static import serve
 
 urlpatterns = [
     url(r'^$', views.index, name='index' ),
@@ -16,4 +18,6 @@ urlpatterns = [
     url(r'^([0-9]+)/$', views.adDetails, name='adDetails' ),
     url(r'^newAd/$', views.createNewAd, name='newAd' ),
     url(r'^modifyCategories/$', views.modifyCategories, name='modifyCategories' ),
+    url(r'^imgMng/([0-9]+)$', views.manageImages, name='imgMng' ),
+    url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]

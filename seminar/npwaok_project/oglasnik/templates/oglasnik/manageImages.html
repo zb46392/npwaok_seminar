@@ -1,0 +1,25 @@
+{% extends './base.html' %}
+{% block title %}Oglasnik{% endblock %}
+{% block userActions %}
+{% include './basicActions.html' %}
+<a href="{% url 'adDetails' ad.id %}">Povratak na oglas</a><br><br>
+{% endblock %}
+
+{% block content %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" name="uploadBtn">Pohrani</button>
+  </form>
+  <br><br>
+  <form method="post">
+    {% csrf_token %}
+    {% for img in images %}
+      <input type="checkbox" name="imageChkBx" value="{{ img.id }}">
+      <img src="{{ img.image.url }}" width="70" height="70"/>
+    {% endfor %}
+    <br><br>
+    <button type="submit" name="delImageBtn">Izbriši slike</button>
+  </form>
+<p>{{ msg }}</p>
+{% endblock %}

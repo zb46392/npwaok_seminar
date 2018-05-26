@@ -3,12 +3,18 @@ from __future__ import unicode_literals
 from django.shortcuts import render, redirect
 #from django.http import HttpResponseRedirect
 from django.urls import reverse
-from forms import UserRegistrationForm, SearchAdsForm, AdDetailsForm, ModifyCategoriesForm
+from forms import (UserRegistrationForm, SearchAdsForm, AdDetailsForm,
+    ModifyCategoriesForm, ImageForm)
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import login, authenticate
-from .models import Ad, Category, CustomUser
+from .models import Ad, Category, CustomUser, AdsImages
 from django.contrib.auth.decorators import login_required
+#from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+import os
 #from django.http import HttpResponse
+
+ADVERTISERS_ROOT = settings.MEDIA_ROOT + '/advertisers/'
 
 def index(request):
     if request.user.is_authenticated:
@@ -56,12 +62,13 @@ def registerUser(request):
             user = authenticate(username=form.cleaned_data['username'],
                 password=form.cleaned_data['password1'])
             if form.cleaned_data['choice'] == 'advertiser':
+                folderPath = ADVERTISERS_ROOT + 'user_' + str(user.id)
                 advertisersGrp = Group.objects.get(name='Advertisers')
                 advertisersGrp.user_set.add(user)
                 advertisersGrp.save()
                 user.is_staff = True
                 user.save()
-
+                os.mkdir(folderPath)
 
             login(request,user)
             return redirect(reverse('index'))
@@ -73,6 +80,7 @@ def registerUser(request):
 def adDetails(request, id):
     ad = Ad.objects.get(pk=id)
     isOwnAd = (request.user == ad.user)
+    adImages = AdsImages.findByAd(ad)
 
     if request.method == 'POST' and isOwnAd:
 
@@ -115,12 +123,14 @@ def adDetails(request, id):
                 'title':ad.title, 'description': ad.description,
                 'price':ad.price, 'categories': ad.category.pk
                 })
+
             context = {'form': form, 'userData': ad.user.email,'isOwnAd': isOwnAd,
-                'isNewAd': False, 'isDeletedAd': False}
+                'isNewAd': False, 'isDeletedAd': False, 'ad':ad, 'images': adImages}
 
             return render(request, 'oglasnik/adDetails.html', context)
+
         context = {'ad':ad, 'userData': ad.user.email, 'isOwnAd': isOwnAd, 'isNewAd': False,
-            'isDeletedAd': False}
+            'isDeletedAd': False, 'images': adImages}
 
         return render(request, 'oglasnik/adDetails.html', context)
 
@@ -215,3 +225,26 @@ def modifyCategories(request):
     else:
         context = {'isAdmin': isAdmin, 'msg': 'Nemate pravo pristupiti ovoj stranici...'}
         return render(request, 'oglasnik/modifyCategories.html', context)
+
+@login_required
+def manageImages(request, id):
+    ad = Ad.objects.get(id=id)
+    isOwnAd = (request.user == ad.user)
+    adImage = AdsImages(ad=ad)
+    adImages = AdsImages.findByAd(ad)
+    form = ImageForm()
+    if isOwnAd:
+        if request.method == 'POST' and isOwnAd:
+            if (request.POST.get('uploadBtn') != None):
+                form = ImageForm(request.POST, request.FILES, instance=adImage)
+                if form.is_valid():
+                    form.save()
+            if (request.POST.get('delImageBtn') != None):
+                selected = request.POST.getlist('imageChkBx')
+                for imgId in selected:
+                    image = AdsImages.findById(imgId)
+                    image.delete()
+
+        context = {'form': form, 'images': adImages, 'ad': ad}
+        return render(request, 'oglasnik/manageImages.html', context)
+    return redirect(reverse('index'))

@@ -3,46 +3,17 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import permission_required
-# unique raises django.db.IntegrityError
+from django.conf import settings
+import os
+from django.dispatch import receiver
+from PIL import Image, ExifTags
+
 class CustomUser(User):
     class Meta:
         proxy = True
-        '''
-        permissions = (
-            ("crudAds", "Can create, read, update, delete Ads"),
-        )
-        '''
 
     def isAdvertiser(self):
             return self.groups.filter(name="Advertisers").exists()
-
-    '''
-    @permission_required('oglasnik.crudAds')
-    def createAd(self, adCategory, adTitle, adDescription, adPrice):
-        newAd = Ad(user=self, category=adCategory, title=adTitle, price=adPrice)
-        newAd.save()
-
-    @permission_required('oglasnik.crudAds')
-    def readAds(self):
-        return Ad.findByAdvertiser(self)
-
-    @permission_required('oglasnik.crudAds')
-    def updateAd(self, oldAd, newAd):
-        if oldAd.user == self and oldAd.existsInDB():
-            oldAd.category = newAd.category
-            oldAd.title = newAd.title
-            oldAd.description = newAd.description
-            oldAd.price = newAd.price
-
-            oldAd.save()
-        return oldAd
-
-    @permission_required('oglasnik.crudAds')
-    def deleteAd(self, ad):
-        if ad.user == self and ad.existsInDB():
-            ad.delete()
-        return ad
-    '''
 
 class Category(models.Model):
     name = models.CharField(max_length = 40, null = False, unique = True)
@@ -118,3 +89,57 @@ class Ad(models.Model):
     @staticmethod
     def findByAdvertiser(advertiser):
         return Ad.objects.filter(user=advertiser)
+
+def advertisersDirectoryPath(instance, filename):
+    return 'advertisers/user_{0}/{1}'.format(instance.ad.user_id, filename)
+
+class AdsImages(models.Model):
+    ad = models.ForeignKey(Ad, on_delete = models.CASCADE,
+        editable=False, null = False)
+
+    image = models.ImageField(upload_to=advertisersDirectoryPath)
+
+    def delete(self, *args, **kwargs):
+        os.remove(os.path.join(settings.MEDIA_ROOT + str(self.image)))
+        super(AdsImages,self).delete(*args,**kwargs)
+
+    @staticmethod
+    def findByAd(ad):
+        return AdsImages.objects.filter(ad=ad)
+
+    @staticmethod
+    def findById(id):
+        return AdsImages.objects.get(id=id)
+
+@receiver(models.signals.post_delete, sender=AdsImages)
+def deleteImages(sender, instance, **kwargs):
+    if instance.image:
+        if os.path.isfile(os.path.join(settings.MEDIA_ROOT + str(instance.image))):
+            os.remove(os.path.join(settings.MEDIA_ROOT + str(instance.image)))
+
+
+def rotate_image(filepath):
+  try:
+    image = Image.open(filepath)
+    for orientation in ExifTags.TAGS.keys():
+      if ExifTags.TAGS[orientation] == 'Orientation':
+            break
+    exif = dict(image._getexif().items())
+
+    if exif[orientation] == 3:
+        image = image.rotate(180, expand=True)
+    elif exif[orientation] == 6:
+        image = image.rotate(270, expand=True)
+    elif exif[orientation] == 8:
+        image = image.rotate(90, expand=True)
+    image.save(filepath)
+    image.close()
+  except (AttributeError, KeyError, IndexError):
+    # cases: image don't have getexif
+    pass
+
+@receiver(models.signals.post_save, sender=AdsImages)
+def update_image(sender, instance, **kwargs):
+  if instance.image:
+    fullpath = os.path.join(settings.MEDIA_ROOT + str(instance.image))
+    rotate_image(fullpath)

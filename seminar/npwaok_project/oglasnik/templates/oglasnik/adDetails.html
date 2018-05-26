@@ -3,6 +3,8 @@
 {% block title %}Oglasnik{% endblock %}
 {% block userActions %}{% include './basicActions.html' %}{% endblock %}
 {% block content %}
+  {{ msg }}
+
   {% if isOwnAd %}
     <form method='post'>
       {% csrf_token %}
@@ -11,12 +13,13 @@
       {% if not isDeletedAd %}
         <button type="submit" name="saveBtn"> Pohrani </button>
         {% if not isNewAd %}
-          <button type="submit" name="deleteBtn"> Izbriši </button>
+          <button type="submit" name="deleteBtn"> Izbriši oglas</button>
+          <a href="{% url 'imgMng' ad.id %}">Postavi slike</a><br><br>
         {% endif %}
       {% endif %}
-    </form>
-    {{ msg }}
+    </form>    
   {% else %}
+
     <table border="2">
       <thead>
         <th colspan="2">{{ ad.title }}</th>
@@ -35,5 +38,8 @@
     </table>
 {% endif %}
 
+{% for img in images %}
+ <img src="{{ img.image.url }}" width="250" height="250"/>
+{% endfor %}
 
 {% endblock %}

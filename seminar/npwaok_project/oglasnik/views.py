@@ -10,6 +10,7 @@ from django.contrib.auth import login, authenticate
 from .models import Ad, Category, CustomUser, AdsImages
 from django.contrib.auth.decorators import login_required
 #from django.core.files.storage import FileSystemStorage
+#from decimal import Decimal
 from django.conf import settings
 import os
 #from django.http import HttpResponse
@@ -30,11 +31,16 @@ def index(request):
                     priceMin = form.cleaned_data['priceMin']
                     priceMax = form.cleaned_data['priceMax']
 
+                    query = {'category': str(category), 'title': title,
+                        'priceMin': str(priceMin), 'priceMax': str(priceMax)}
+
+                    request.session['query'] = query
+
                     ads = Ad.findByFilter(category, title, priceMin, priceMax)
 
                     return render(request, 'oglasnik/index.html',
                         {'form' : form, 'ads':ads,'showTable':True,
-                            'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin})
+                            'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin, 'msg': request.session.items()})
 
                 if(request.POST.get("ownAdsBtn") != None):
                     ads = Ad.findByAdvertiser(request.user)
@@ -46,6 +52,28 @@ def index(request):
                     return redirect(reverse('newAd'))
 
         form = SearchAdsForm()
+        if request.session['query'] != None:
+            category = Category.getByName(request.session['query']['category'])
+            title = request.session['query']['title']
+            if request.session['query']['priceMin'] == 'None':
+                priceMin = None
+            else:
+                priceMin = request.session['query']['priceMin']
+
+            if request.session['query']['priceMax'] == 'None':
+                priceMax = None
+            else:
+                priceMax = request.session['query']['priceMax']
+            ads = Ad.findByFilter(category, title, priceMin, priceMax)
+
+
+            form = SearchAdsForm(initial={
+                'title':title, 'priceMin':priceMin, 'priceMax': priceMax, 'categories': category
+                })
+
+            return render(request, 'oglasnik/index.html',
+                {'form' : form, 'showTable': True, 'isAdvertiser': isAdvertiser,
+                    'isAdmin': isAdmin, 'ads': ads})
 
 
         return render(request, 'oglasnik/index.html',

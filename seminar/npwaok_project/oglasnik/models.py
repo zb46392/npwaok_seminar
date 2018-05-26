@@ -27,7 +27,15 @@ class Category(models.Model):
 
     @staticmethod
     def getByName(name):
-        return Category.objects.get(name__contains = name)
+        try:
+            return Category.objects.get(name__contains = name)
+        except:
+            return None
+
+
+    @staticmethod
+    def getById(id):
+        return Category.objects.get(id = id)
 
     @staticmethod
     def exists(categoryName):

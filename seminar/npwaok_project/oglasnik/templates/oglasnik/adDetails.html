@@ -17,7 +17,7 @@
           <a href="{% url 'imgMng' ad.id %}">Postavi slike</a><br><br>
         {% endif %}
       {% endif %}
-    </form>    
+    </form>
   {% else %}
 
     <table border="2">
@@ -37,9 +37,9 @@
       </tfoot>
     </table>
 {% endif %}
-
+<div class="images" style="width: 100%; float: left;">
 {% for img in images %}
- <img src="{{ img.image.url }}" width="250" height="250"/>
+ <div style="width: 250px; height: 250px; background-image: url('{{ img.image.url }}'); background-size: contain; background-repeat: no-repeat; background-position: center; float: left; margin: 10px;"/></div>
 {% endfor %}
-
+</div>
 {% endblock %}

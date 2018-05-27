@@ -29,7 +29,7 @@ class SearchAdsForm(forms.Form):
 
 class AdDetailsForm(forms.Form):
     categories = forms.ModelChoiceField(queryset=Category.getAll(),
-        label = "Kategorija", required=True)
+        label = "Kategorija", required=False)
     title = forms.CharField(max_length = 40,label = 'Naslov', required=True)
     price = forms.DecimalField(max_digits = 8, label= 'Cijena',decimal_places = 2,
         min_value=0, required=True)

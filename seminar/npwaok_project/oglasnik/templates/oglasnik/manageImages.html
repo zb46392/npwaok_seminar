@@ -14,10 +14,14 @@
   <br><br>
   <form method="post">
     {% csrf_token %}
-    {% for img in images %}
-      <input type="checkbox" name="imageChkBx" value="{{ img.id }}">
-      <img src="{{ img.image.url }}" width="70" height="70"/>
-    {% endfor %}
+    <div class="images" style="width: 100%; float: left;">
+      {% for img in images %}
+
+        <div style="width: 70px; height: 70px; background-image: url('{{ img.image.url }}'); background-size: contain; background-repeat: no-repeat; background-position: center; float: left; margin: 10px;"/>
+          <input type="checkbox" name="imageChkBx" value="{{ img.id }}">
+        </div>
+      {% endfor %}
+    </div>
     <br><br>
     <button type="submit" name="delImageBtn">Izbriši slike</button>
   </form>

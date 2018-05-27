@@ -42,8 +42,8 @@ class Category(models.Model):
         return Category.objects.filter(name = categoryName).exists()
 
 class Ad(models.Model):
-    category = models.ForeignKey(Category, on_delete = models.CASCADE,
-        null = False)
+    category = models.ForeignKey(Category, on_delete = models.SET_NULL,
+        null = True)
     user = models.ForeignKey(CustomUser, on_delete = models.CASCADE,
         null = False)
 

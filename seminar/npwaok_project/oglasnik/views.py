@@ -35,15 +35,20 @@ def index(request):
                         'priceMin': str(priceMin), 'priceMax': str(priceMax)}
 
                     request.session['query'] = query
+                    request.session['ownAds'] = False
 
                     ads = Ad.findByFilter(category, title, priceMin, priceMax)
 
                     return render(request, 'oglasnik/index.html',
                         {'form' : form, 'ads':ads,'showTable':True,
-                            'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin, 'msg': request.session.items()})
+                            'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin})
 
                 if(request.POST.get("ownAdsBtn") != None):
                     ads = Ad.findByAdvertiser(request.user)
+
+                    request.session['query'] = None
+                    request.session['ownAds'] = True
+
                     return render(request, 'oglasnik/index.html',
                         {'form' : form, 'ads':ads,'showTable':True,
                             'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin})
@@ -52,7 +57,7 @@ def index(request):
                     return redirect(reverse('newAd'))
 
         form = SearchAdsForm()
-        if request.session['query'] != None:
+        if request.session.get('query', None) != None:
             category = Category.getByName(request.session['query']['category'])
             title = request.session['query']['title']
             if request.session['query']['priceMin'] == 'None':
@@ -66,15 +71,15 @@ def index(request):
                 priceMax = request.session['query']['priceMax']
             ads = Ad.findByFilter(category, title, priceMin, priceMax)
 
-
-            form = SearchAdsForm(initial={
-                'title':title, 'priceMin':priceMin, 'priceMax': priceMax, 'categories': category
-                })
+            return render(request, 'oglasnik/index.html',
+                {'form' : form, 'showTable': True, 'isAdvertiser': isAdvertiser,
+                    'isAdmin': isAdmin, 'ads': ads})
+        elif request.session.get('ownAds', False):
+            ads = Ad.findByAdvertiser(request.user)
 
             return render(request, 'oglasnik/index.html',
                 {'form' : form, 'showTable': True, 'isAdvertiser': isAdvertiser,
                     'isAdmin': isAdmin, 'ads': ads})
-
 
         return render(request, 'oglasnik/index.html',
             {'form' : form, 'showTable': False, 'isAdvertiser': isAdvertiser, 'isAdmin': isAdmin})
@@ -142,14 +147,14 @@ def adDetails(request, id):
 
                 ad.save()
                 context = {'form': form, 'userData': ad.user.email,'msg': 'Oglas upješno pohranjen...',
-                    'isOwnAd': isOwnAd, 'isNewAd': False, 'isDeletedAd': False}
+                    'isOwnAd': isOwnAd, 'isNewAd': False, 'isDeletedAd': False, 'ad': ad, 'images': adImages}
 
                 return render(request, 'oglasnik/adDetails.html', context)
     else:
         if(isOwnAd):
             form = AdDetailsForm(initial={
                 'title':ad.title, 'description': ad.description,
-                'price':ad.price, 'categories': ad.category.pk
+                'price':ad.price, 'categories': ad.category
                 })
 
             context = {'form': form, 'userData': ad.user.email,'isOwnAd': isOwnAd,
@@ -238,7 +243,7 @@ def modifyCategories(request):
                             'msg': 'Nije odabrana kategorija za brisanje...'}
                         return render(request, 'oglasnik/modifyCategories.html', context)
                     else:
-                        deletedCategory = Category.getByName(category)
+                        deletedCategory = Category.getById(category.id)
                         deletedCategory.delete()
 
                         context = {'form': form, 'isAdmin': isAdmin,
